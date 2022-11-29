@@ -11,13 +11,15 @@ const connString = process.env.ATLAS_URI;
 app.use(bodyParser.json());
 app.use(cors());
 
-const routes = require('/routes');
-app.use(routes);
+const router = require('./routes');
+app.use(router);
 
-app.use(express.static(path.join(__dirname, '../build')))
-app.get('*', (req, res) => {
+if (process.env.NODE_ENV === "production") {
+  app.use(express.static(path.join(__dirname, "../build")));
+  app.get('*', (req, res) => {
     res.sendFile(path.join(__dirname, '../build'))
-})
+  })
+}
 
 mongoose.connect(connString, {
     useNewUrlParser: true,
@@ -30,8 +32,6 @@ db.on("error", console.error.bind(console, "connection error: "));
 db.once("open", function () {
   console.log("Connected successfully");
 });
-
-app.use(router);
 
 app.listen(port, () => {
   console.log(`Server is running at port: ${port}`);
